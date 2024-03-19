@@ -15,7 +15,7 @@ export default function Home() {
             <NavBar></NavBar>
             <Paper sx={{
                 width: '100vw',
-                height: '100vh',
+                height: '200vh',
                 backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.3)), url(/images/bg.jpg)',
                 backgroundSize: 'cover',
             }}>

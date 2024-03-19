@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 import { Button } from '@mui/material';
 
-const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID;
+const CLIENT_ID =  process.env.NEXT_PUBLIC_CLIENT_ID;
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 const DISCOVERY_DOC = process.env.NEXT_PUBLIC_DISCOVERY_DOC;
 const SCOPES = process.env.NEXT_PUBLIC_SCOPES;
@@ -156,7 +156,7 @@ function Calendar() {
                 
             )} */}
             <Button onClick={handleAuthClick} sx={{ display: 'block', margin: '0 auto' }}>
-                Get Start!
+                Get Started!
             </Button>
             {signoutButtonVisible && (
                 <Button onClick={handleSignoutClick}>Sign Out</Button>
