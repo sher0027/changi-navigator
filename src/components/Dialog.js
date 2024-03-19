@@ -42,7 +42,6 @@ function Dialog() {
         setMessages([...messages, {name: ASSISTANT_NAME, text: newMessage}]);
     }
 
-    // Should be correct
     async function waitRunToComplete(thread_id, run_id) {
         let run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
         let new_run_status = run.status;
@@ -55,7 +54,6 @@ function Dialog() {
         }
     }
 
-    //Should be correct
     async function getNewMessage(thread_id) {
         let newMessageList = await openai.beta.threads.messages.list(thread_id);
 
@@ -103,44 +101,44 @@ function Dialog() {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     return (
-        <Box sx={{padding: '100px 100px 50px'}}>
-            <Box
-                sx={{
-                    bgcolor: '#F0F2F6',
-                    margin: 'auto',
-                    borderRadius: '20px',
-                    padding: '20px',
-                    maxHeight: '300px',
-                    maxWidth: '800px',
-                    overflowY: 'auto',
-                    '::-webkit-scrollbar': {
-                        display: 'none'
-                    },
-                    scrollbarWidth: 'none'
-                }}>
-                {messages.map((msg, index) => (
-                    <Typography key={index} gutterBottom>
-                        {msg.name === 'You' ? 'You' : 'Assistant'}: {msg.text}
-                    </Typography>
-                ))}
+            <Box sx={{padding: '100px 100px 50px'}}>
+                <Box
+                    sx={{
+                        bgcolor: '#F0F2F6',
+                        margin: 'auto',
+                        borderRadius: '20px',
+                        padding: '20px',
+                        maxHeight: '600px',
+                        maxWidth: '1000px',
+                        overflowY: 'auto',
+                        '::-webkit-scrollbar': {
+                            display: 'none'
+                        },
+                        scrollbarWidth: 'none'
+                    }}>
+                    {messages.map((msg, index) => (
+                        <Typography key={index} gutterBottom>
+                            {msg.name === 'You' ? 'You' : 'Assistant'}: {msg.text}
+                        </Typography>
+                    ))}
 
-                <Box sx={{display: 'flex'}}>
-                    <TextField
-                        fullWidth
-                        id="outlined-basic"
-                        label="Type a message"
-                        variant="outlined"
-                        size="small"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                    <IconButton color="primary" aria-label="send" onClick={handleUserInput}>
-                        <SendIcon/>
-                    </IconButton>
+                    <Box sx={{display: 'flex'}}>
+                        <TextField
+                            fullWidth
+                            id="outlined-basic"
+                            label="Type a message"
+                            variant="outlined"
+                            size="small"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <IconButton color="primary" aria-label="send" onClick={handleUserInput}>
+                            <SendIcon/>
+                        </IconButton>
+                    </Box>
                 </Box>
             </Box>
-        </Box>
     );
 }
 
