@@ -4,7 +4,7 @@ import SendIcon from '@mui/icons-material/Send';
 import {OpenAI} from 'openai';
 
 // Calendar part
-import { useRouter } from 'next/navigation'
+import {useRouter} from 'next/navigation'
 
 // Dialog part
 const GPT_API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
@@ -13,7 +13,7 @@ const ASSISTANT_NAME = process.env.NEXT_PUBLIC_ASSISTANT_NAME;
 const openai = new OpenAI({apiKey: GPT_API_KEY, dangerouslyAllowBrowser: true});
 
 // Calendar part
-const CLIENT_ID =  process.env.NEXT_PUBLIC_CLIENT_ID;
+const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID;
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 const DISCOVERY_DOC = process.env.NEXT_PUBLIC_DISCOVERY_DOC;
 const SCOPES = process.env.NEXT_PUBLIC_SCOPES;
@@ -64,7 +64,6 @@ function Combined() {
         });
 
 
-
         return () => {
             // Cleanup script elements if component unmounts
             document.querySelectorAll('script[src*="googleapis"], script[src*="accounts.google"]').forEach((script) => {
@@ -73,17 +72,19 @@ function Combined() {
         };
 
     }, []);
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     async function initThread() {
-            try {
-                const thread = await openai.beta.threads.create();
-                setThreadId(thread.id);
-                await startRun(thread.id);
-            } catch (error) {
-                console.error('Error initializing the thread: ', error);
-            }
+        try {
+            const thread = await openai.beta.threads.create();
+            setThreadId(thread.id);
+            await startRun(thread.id);
+        } catch (error) {
+            console.error('Error initializing the thread: ', error);
         }
+    }
+
     // Todo: Calendar
     const initializeGapiClient = async () => {
         try {
@@ -127,9 +128,9 @@ function Combined() {
 
     const handleAuthClick = () => {
         if (!window.gapi.client.getToken()) {
-            tokenClient.requestAccessToken({ prompt: 'consent' });
+            tokenClient.requestAccessToken({prompt: 'consent'});
         } else {
-            tokenClient.requestAccessToken({ prompt: '' });
+            tokenClient.requestAccessToken({prompt: ''});
         }
         initThread();
     };
@@ -145,17 +146,18 @@ function Combined() {
             router.push('/');
         });
     };
-    const addEvent = () => {
-        const event = {
-            summary: 'Flight from Singapore to Langkawi',
-            start: {
-                dateTime: '2024-03-15T20:30:00+08:00',
-            },
-            end: {
-                dateTime: '2024-03-15T21:00:00+08:00',
-            },
-        };
+    const addEvent = (event) => {
+        // const event = {
+        //     summary: 'Flight from Singapore to Langkawi',
+        //     start: {
+        //         dateTime: '2024-03-15T20:30:00+08:00',
+        //     },
+        //     end: {
+        //         dateTime: '2024-03-15T21:00:00+08:00',
+        //     },
+        // };
 
+        console.log(event)
         const request = window.gapi.client.calendar.events.insert({
             calendarId: 'primary',
             resource: event,
@@ -167,7 +169,7 @@ function Combined() {
         });
     };
 
-     const listUpcomingEvents = async () => {
+    const listUpcomingEvents = async () => {
         try {
             const response = await window.gapi.client.calendar.events.list({
                 calendarId: 'primary',
@@ -183,9 +185,8 @@ function Combined() {
             setEvents([]); // Clear events on error
         }
     };
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 
     async function startRun(threadId) {
@@ -207,9 +208,24 @@ function Combined() {
         while (new_run_status === 'queued' || new_run_status === 'in_progress') {
             run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
             new_run_status = run.status;
-            // if (new_run_status === "requires_action" && required_action.type === "submit_tool_outputs"){
-            //
-            // }
+            if (new_run_status === "requires_action" && run.required_action.type === "submit_tool_outputs") {
+                run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
+                let calendar_event = JSON.parse(run.required_action.submit_tool_outputs.tool_calls[0].function.arguments)
+                let tool_call_id = run.required_action.submit_tool_outputs.tool_calls[0].id
+                await addEvent(calendar_event)
+                let tool_output = await openai.beta.threads.runs.submitToolOutputs(
+                    thread_id,
+                    run_id,
+                    {
+                        tool_outputs: [
+                            {
+                                tool_call_id: tool_call_id,
+                                output: "Done inserting",
+                            },
+                        ],
+                    }
+                );
+            }
 
             await new Promise(resolve => setTimeout(resolve, 500));
         }
@@ -226,6 +242,7 @@ function Combined() {
         }
         return newMessageList.data[0].content[0].text.value;
     }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //When user press send
     async function handleUserInput(event) {
@@ -304,7 +321,7 @@ function Combined() {
                     </Box>
                 </Box>
             </Box>
-            <Button onClick={handleAuthClick} sx={{ display: 'block', margin: '0 auto' }}>
+            <Button onClick={handleAuthClick} sx={{display: 'block', margin: '0 auto'}}>
                 Start!
             </Button>
         </>
