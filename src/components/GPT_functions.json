@@ -1,0 +1,38 @@
+{
+  "name": "insert_event_to_google_calendar",
+  "description": "Insert the event suggested by GPT assistant into Google Calendar",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "summary": {
+        "type": "string",
+        "description": "The name of the event to be inserted, e.g. Trip to Changi Airport"
+      },
+      "start": {
+        "type": "object",
+        "description": "The starting time object",
+        "properties": {
+          "dateTime": {
+            "type": "string",
+            "description": "The starting time of the event in the format of 2024-03-15T20:30:00+08:00"
+          }
+        }
+      },
+      "end": {
+        "type": "object",
+        "description": "The ending time object",
+        "properties": {
+          "dateTime": {
+            "type": "string",
+            "description": "The ending time of the event in the format of 2024-03-15T20:30:00+08:00"
+          }
+        }
+      }
+    },
+    "required": [
+      "summary",
+      "start",
+      "end"
+    ]
+  }
+}
