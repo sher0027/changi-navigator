@@ -1,18 +1,36 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import '@fontsource/roboto/500.css';
+import { Box, Typography, createTheme, ThemeProvider } from '@mui/material';
+import Banner from '../components/Banner';
+import Link from 'next/link'
+
+const theme = createTheme({
+    typography: {
+      allVariants: {
+        color: 'white', 
+        fontFamily: 'Comic Sans MS',
+        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.5)',
+      },
+    },
+  });
 
 function WelcomeDescr() {
-    return (<>
-        <Box sx={{ padding: '100px 100px 50px' }}>
-            <Typography variant='h5'>Welcome to Changi Navigator</Typography>
-            <Typography variant='subtitle2' gutterBottom>Your Personalized Airport Trip Planner</Typography>
-            <Typography variant='body2'>Changi Navigator is a web-based application designed to simplify your journey to Changi Airport. Offering tailored travel
-                itineraries, real-time assistance via a GPT-powered chatbot, and efficient route planning with Google Maps integration, all based
-                on your flight and hotel information.</Typography>
+    return (
+    <ThemeProvider theme={theme}>
+        <Box sx={{ padding: '70px 150px 50px' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography sx={{fontSize: '2rem', fontWeight: 'bold'}}>Welcome to Changi Navigator</Typography>
+                <Typography sx={{ margin: '10px 20px 0px', fontSize: '0.6rem' }}>Your Personalized Airport Trip Planner</Typography>
+            </Box>
 
-            <Typography>Explore Changi Airport with ease</Typography>
+            <Banner></Banner>
+            <Typography variant='body2' gutterBottom>Changi Navigator is designed to streamline your travel experience to and within Changi Airport.
+                It provides customized travel itineraries, real-time GPT-powered chat assistance, and efficient navigation using Google Maps integration.
+            </Typography>
+            <Box sx={{width: 'max-content', margin: 'auto'}}>
+                <Link href='/home'>Explore Changi Airport with ease!</Link>
+            </Box>
         </Box>
-    </>);
+    </ThemeProvider>
+    );
 }
 export default WelcomeDescr;

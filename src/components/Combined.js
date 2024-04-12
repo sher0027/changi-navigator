@@ -282,7 +282,7 @@ function Combined() {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     return (
         <>
-            <Box sx={{padding: '100px 100px 50px'}}>
+            <Box sx={{ margin: 'auto'}}>
                 <Box
                     sx={{
                         bgcolor: '#F0F2F6',
@@ -290,7 +290,7 @@ function Combined() {
                         borderRadius: '20px',
                         padding: '20px',
                         maxHeight: '600px',
-                        maxWidth: '1000px',
+                        width: '500px',
                         overflowY: 'auto',
                         '::-webkit-scrollbar': {
                             display: 'none'
@@ -321,9 +321,11 @@ function Combined() {
                     </Box>
                 </Box>
             </Box>
-            <Button onClick={handleAuthClick} sx={{display: 'block', margin: '0 auto'}}>
-                Start!
-            </Button>
+            {authorizeButtonVisible && (
+                <Button onClick={handleAuthClick} sx={{ display: 'block', margin: '0 auto' }}>
+                    Start!
+                </Button>
+            )}
         </>
     );
 }
