@@ -72,6 +72,8 @@ function Dialog() {
 
         let userMessage = {name: 'You', text: input};
         setMessages((currentMessages) => [...currentMessages, userMessage]);
+        setInput('');
+        
 
         await openai.beta.threads.messages.create(
             threadId,
@@ -87,7 +89,6 @@ function Dialog() {
         // Get response from GPT
         const newMessage = await getNewMessage(threadId);
         setMessages((currentMessages) => [...currentMessages, {name: ASSISTANT_NAME, text: newMessage}]);
-        setInput('');
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,15 +102,15 @@ function Dialog() {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     return (
-            <Box sx={{padding: '100px 100px 50px'}}>
+            <Box sx={{ margin: 'auto', position: 'relative'}}>
                 <Box
                     sx={{
                         bgcolor: '#F0F2F6',
                         margin: 'auto',
                         borderRadius: '20px',
-                        padding: '20px',
-                        maxHeight: '600px',
-                        maxWidth: '1000px',
+                        padding: '20px 20px 65px',
+                        maxHeight: '350px',
+                        width: '500px',
                         overflowY: 'auto',
                         '::-webkit-scrollbar': {
                             display: 'none'
@@ -118,24 +119,37 @@ function Dialog() {
                     }}>
                     {messages.map((msg, index) => (
                         <Typography key={index} gutterBottom>
-                            {msg.name === 'You' ? 'You' : 'Assistant'}: {msg.text}
+                            {msg.name === 'You' ? 'You' : 'Assistant'}: 
+                            <br />
+                            {msg.text}
                         </Typography>
                     ))}
-
-                    <Box sx={{display: 'flex'}}>
-                        <TextField
-                            fullWidth
-                            id="outlined-basic"
-                            label="Type a message"
-                            variant="outlined"
-                            size="small"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                        />
-                        <IconButton color="primary" aria-label="send" onClick={handleUserInput}>
-                            <SendIcon/>
-                        </IconButton>
+                    <Box sx={{
+                        position: 'absolute',        
+                        left: 0,   
+                        right: 0,         
+                        bottom: 0,           
+                        bgcolor: '#F0F2F6',
+                        padding: '10px',
+                        borderBottomLeftRadius: '20px',
+                        borderBottomRightRadius: '20px',
+                        zIndex: 1000       
+                    }}>
+                        <Box sx={{display: 'flex'}}>
+                            <TextField
+                                fullWidth
+                                id="outlined-basic"
+                                label="Type a message"
+                                variant="outlined"
+                                size="small"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <IconButton color="primary" aria-label="send" onClick={handleUserInput}>
+                                <SendIcon/>
+                            </IconButton>
+                        </Box>
                     </Box>
                 </Box>
             </Box>

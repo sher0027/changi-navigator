@@ -23,9 +23,9 @@ export default function Home() {
                 backgroundSize: 'cover',
                 display: 'flex'
             }}>
-                <Combined></Combined>
-                {/* <Dialog></Dialog>
-                <Calendar></Calendar> */}
+                {/* <Combined></Combined> */}
+                <Dialog></Dialog>
+                {/* <Calendar></Calendar> */}
                 <Map></Map>
             </Paper>
 

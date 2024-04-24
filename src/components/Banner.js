@@ -1,20 +1,61 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import Carousel from 'react-material-ui-carousel';
-import { Paper, Button, Box } from '@mui/material';
+import { Paper, Box } from '@mui/material';
+import Link from 'next/link'
+
+const API_KEY = process.env.NEXT_PUBLIC_MAP_KEY;
 
 function Banner() {
-    var items = [
-        {
-            name: "Random Name #1",
-            description: "Probably the most random thing you have ever seen! Probably the most random thing you have ever seen! Probably the most random thing you have ever seen!",
-            image: "https://picsum.photos/200?random=1"
-        },
-        {
-            name: "Random Name #2",
-            description: "Hello World!",
-            image: "https://picsum.photos/200?random=2"
-        }
-    ]
+    const [items, setItems] = useState([]);
+
+    useEffect(() => {
+        const body = {
+            includedTypes: ["tourist_attraction"],
+            languageCode: 'en',
+            maxResultCount: 5,
+            locationRestriction: {
+                circle: {
+                    center: {
+                        latitude: 1.3521,
+                        longitude: 103.8198
+                    },
+                    radius: 30000
+                }
+            }
+        };
+
+        fetch(`https://places.googleapis.com/v1/places:searchNearby?key=${API_KEY}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-FieldMask': 'places.displayName,places.id,places.photos,places.formattedAddress,places.websiteUri'
+            },
+            body: JSON.stringify(body)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+            .then(data => {
+            console.log(data.places)
+            if (data.places) {
+                const formattedPlaces = data.places.map(place => ({
+                    name: place.displayName.text,
+                    description: place.formattedAddress,
+                    web: place.websiteUri,
+                    image: `https://places.googleapis.com/v1/${place.photos[0].name}/media?maxHeightPx=400&maxWidthPx=400&key=${API_KEY}`
+                }));
+                setItems(formattedPlaces);
+            } else {
+                throw new Error(data.error_message || "Failed to fetch places");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching places:', error);
+        });
+    }, []);
 
     return (
         <Carousel>
@@ -61,7 +102,12 @@ function Item(props) {
                     WebkitLineClamp: 3,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                }}>{props.item.description}</Box>
+                }}>{props.item.description}
+                <br />
+                <Link href={props.item.web} target="_blank" style={{ color: 'blue', textDecoration: 'none' }}>
+                    {props.item.web}
+                </Link>
+                </Box>
                 <Box
                     component="img"
                     src={props.item.image}
