@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {Box, Typography, TextField, IconButton} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import {OpenAI} from 'openai';
+import Loading from './Loading';
+
 
 const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 const ASSISTANT_ID = process.env.NEXT_PUBLIC_ASSISTANT_ID;
@@ -14,10 +16,12 @@ function Dialog() {
     const [lastRunId, setLastRunId] = useState('');
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Step 2: Initialise a new thread for each user instance
     useEffect(() => {
+        setIsLoading(true);
         async function initThread() {
             try {
                 const thread = await openai.beta.threads.create();
@@ -40,6 +44,7 @@ function Dialog() {
         await waitRunToComplete(threadId, run.id);
         const newMessage = await getNewMessage(threadId);
         setMessages([...messages, {name: ASSISTANT_NAME, text: newMessage}]);
+        setIsLoading(false);
     }
 
     async function waitRunToComplete(thread_id, run_id) {
@@ -69,6 +74,7 @@ function Dialog() {
     //When user press send
     async function handleUserInput(event) {
         if (!input.trim()) return; //If empty
+        setIsLoading(true);
 
         let userMessage = {name: 'You', text: input};
         setMessages((currentMessages) => [...currentMessages, userMessage]);
@@ -89,6 +95,7 @@ function Dialog() {
         // Get response from GPT
         const newMessage = await getNewMessage(threadId);
         setMessages((currentMessages) => [...currentMessages, {name: ASSISTANT_NAME, text: newMessage}]);
+        setIsLoading(false);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +117,7 @@ function Dialog() {
                         borderRadius: '20px',
                         padding: '20px 20px 65px',
                         maxHeight: '350px',
-                        width: '500px',
+                        width: '600px',
                         overflowY: 'auto',
                         '::-webkit-scrollbar': {
                             display: 'none'
@@ -124,6 +131,7 @@ function Dialog() {
                             {msg.text}
                         </Typography>
                     ))}
+                    <Loading open={isLoading} /> 
                     <Box sx={{
                         position: 'absolute',        
                         left: 0,   

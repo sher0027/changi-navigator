@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import Carousel from 'react-material-ui-carousel';
 import { Paper, Box } from '@mui/material';
-import Link from 'next/link'
+import Link from 'next/link';
 
 const API_KEY = process.env.NEXT_PUBLIC_MAP_KEY;
 

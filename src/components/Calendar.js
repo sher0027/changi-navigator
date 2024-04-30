@@ -56,10 +56,19 @@ function Calendar() {
                 discoveryDocs: [DISCOVERY_DOC],
                 scope: SCOPES,
             });
+            console.log("Google API Client successfully initialized");
             gapiInited = true;
-            maybeEnableButtons();
+            
+    
+            if (window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
+                console.log("User is already signed in.");
+            } else {
+                console.log("User is not signed in.");
+                maybeEnableButtons();
+            }
         } catch (error) {
             console.error('Error initializing the Google API client:', error);
+            gapiInited = false; 
         }
     };
 
@@ -74,8 +83,6 @@ function Calendar() {
                 setSignoutButtonVisible(true);
                 setAuthorizeButtonVisible(false);
                 setAddEventButtonVisible(true);
-                // Optionally, push to another route after successful authorization
-                router.push('/home');
             },
         });
         gisInited = true;
@@ -97,28 +104,28 @@ function Calendar() {
         }
     };
 
-    const handleSignoutClick = () => {
-        window.google.accounts.oauth2.revoke(window.gapi.client.getToken().access_token, () => {
-            console.log('Token revoked and user signed out');
-            window.gapi.client.setToken(null); // Clear the client token
-            setSignoutButtonVisible(false);
-            setAuthorizeButtonVisible(true);
-            setAddEventButtonVisible(false);
-            // Optionally, navigate user somewhere else after sign-out
-            router.push('/');
-        });
-    };
+    // const handleSignoutClick = () => {
+    //     window.google.accounts.oauth2.revoke(window.gapi.client.getToken().access_token, () => {
+    //         console.log('Token revoked and user signed out');
+    //         window.gapi.client.setToken(null); // Clear the client token
+    //         setSignoutButtonVisible(false);
+    //         setAuthorizeButtonVisible(true);
+    //         setAddEventButtonVisible(false);
+    //         // Optionally, navigate user somewhere else after sign-out
+    //         router.push('/');
+    //     });
+    // };
 
     const addEvent = () => {
-        const event = {
-            summary: 'Flight from Singapore to Langkawi',
-            start: {
-                dateTime: '2024-03-15T20:30:00+08:00',
-            },
-            end: {
-                dateTime: '2024-03-15T21:00:00+08:00',
-            },
-        };
+        // const event = {
+        //     summary: 'Flight from Singapore to Langkawi',
+        //     start: {
+        //         dateTime: '2024-03-15T20:30:00+08:00',
+        //     },
+        //     end: {
+        //         dateTime: '2024-03-15T21:00:00+08:00',
+        //     },
+        // };
 
         const request = window.gapi.client.calendar.events.insert({
             calendarId: 'primary',
@@ -152,17 +159,14 @@ function Calendar() {
 
     return (
         <>
-            {/* {authorizeButtonVisible && (
-                
-            )} */}
-            <Button onClick={handleAuthClick} sx={{ display: 'block', margin: '0 auto' }}>
-                Get Started!
-            </Button>
-            {signoutButtonVisible && (
-                <Button onClick={handleSignoutClick}>Sign Out</Button>
+            {authorizeButtonVisible && (
+                <Button onClick={handleAuthClick} sx={{ display: 'block', margin: '0 auto' }}>Get Started!</Button>
             )}
+            {/* {signoutButtonVisible && (
+                <Button onClick={handleSignoutClick} sx={{ display: 'block', margin: '0 auto' }}>Sign Out</Button>
+            )} */}
             {addEventButtonVisible && (
-                <Button onClick={addEvent}>Add Event</Button>
+                <Button onClick={addEvent} sx={{ display: 'block', margin: '0 auto' }}>Add Event</Button>
             )}
         </>
     )
