@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Box, Typography, TextField, IconButton} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import {OpenAI} from 'openai';
+import { OpenAI } from 'openai';
 import Loading from './Loading';
 
 
@@ -55,6 +55,25 @@ function Dialog() {
         while (new_run_status === 'queued' || new_run_status === 'in_progress') {
             run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
             new_run_status = run.status;
+            if (new_run_status === "requires_action" && run.required_action.type === "submit_tool_outputs") {
+                run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
+                let calendar_event = JSON.parse(run.required_action.submit_tool_outputs.tool_calls[0].function.arguments)
+                let tool_call_id = run.required_action.submit_tool_outputs.tool_calls[0].id
+                await addEvent(calendar_event)
+                let tool_output = await openai.beta.threads.runs.submitToolOutputs(
+                    thread_id,
+                    run_id,
+                    {
+                        tool_outputs: [
+                            {
+                                tool_call_id: tool_call_id,
+                                output: "Done inserting",
+                            },
+                        ],
+                    }
+                );
+            }
+
             await new Promise(resolve => setTimeout(resolve, 500));
         }
     }
@@ -106,6 +125,18 @@ function Dialog() {
             event.preventDefault();
         }
     };
+
+    // const addEvent = (event) => {
+    //     console.log(event)
+    //     const request = window.gapi.client.calendar.events.insert({
+    //         calendarId: 'primary',
+    //         resource: event,
+    //     });
+
+    //     request.execute(function (event) {
+    //         alert('Event created: ' + event.htmlLink);
+    //     });
+    // };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     return (

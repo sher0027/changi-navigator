@@ -134,29 +134,8 @@ function Combined() {
         }
         initThread();
     };
-
-    const handleSignoutClick = () => {
-        window.google.accounts.oauth2.revoke(window.gapi.client.getToken().access_token, () => {
-            console.log('Token revoked and user signed out');
-            window.gapi.client.setToken(null); // Clear the client token
-            setSignoutButtonVisible(false);
-            setAuthorizeButtonVisible(true);
-            setAddEventButtonVisible(false);
-            // Optionally, navigate user somewhere else after sign-out
-            router.push('/');
-        });
-    };
+    
     const addEvent = (event) => {
-        // const event = {
-        //     summary: 'Flight from Singapore to Langkawi',
-        //     start: {
-        //         dateTime: '2024-03-15T20:30:00+08:00',
-        //     },
-        //     end: {
-        //         dateTime: '2024-03-15T21:00:00+08:00',
-        //     },
-        // };
-
         console.log(event)
         const request = window.gapi.client.calendar.events.insert({
             calendarId: 'primary',
@@ -165,25 +144,7 @@ function Combined() {
 
         request.execute(function (event) {
             alert('Event created: ' + event.htmlLink);
-            // listUpcomingEvents(); // Refresh the events list
         });
-    };
-
-    const listUpcomingEvents = async () => {
-        try {
-            const response = await window.gapi.client.calendar.events.list({
-                calendarId: 'primary',
-                timeMin: new Date().toISOString(),
-                showDeleted: false,
-                singleEvents: true,
-                maxResults: 10,
-                orderBy: 'startTime',
-            });
-            setEvents(response.result.items);
-        } catch (err) {
-            console.error('Error listing events:', err.message);
-            setEvents([]); // Clear events on error
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -247,8 +208,6 @@ function Combined() {
     //When user press send
     async function handleUserInput(event) {
         if (!input.trim()) return; //If empty
-
-        // addEvent();
 
         let userMessage = {name: 'You', text: input};
         setMessages((currentMessages) => [...currentMessages, userMessage]);

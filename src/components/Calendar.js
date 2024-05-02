@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'
 import { Button } from '@mui/material';
+import Link from 'next/link';
 
 const CLIENT_ID =  process.env.NEXT_PUBLIC_CLIENT_ID;
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
@@ -8,13 +8,10 @@ const DISCOVERY_DOC = process.env.NEXT_PUBLIC_DISCOVERY_DOC;
 const SCOPES = process.env.NEXT_PUBLIC_SCOPES;
 
 function Calendar() {
-    const router = useRouter();
-
     // Add useState hooks for controlling visibility of buttons
     const [authorizeButtonVisible, setAuthorizeButtonVisible] = useState(false);
-    const [signoutButtonVisible, setSignoutButtonVisible] = useState(false);
-    const [addEventButtonVisible, setAddEventButtonVisible] = useState(false);
-
+    const [linkVisible, setLinkVisible] = useState(false);
+    
     let tokenClient;
     let gapiInited = false;
     let gisInited = false;
@@ -42,8 +39,11 @@ function Calendar() {
 
         return () => {
             // Cleanup script elements if component unmounts
-            document.querySelectorAll('script[src*="googleapis"], script[src*="accounts.google"]').forEach((script) => {
-                document.body.removeChild(script);
+            document.querySelectorAll('script[src*="googleapis"], script[src*="accounts.google"]').forEach(script => {
+                // Ensure the script is still a child of the body before trying to remove it
+                if (document.body.contains(script)) {
+                    document.body.removeChild(script);
+                }
             });
         };
     }, []);
@@ -54,18 +54,11 @@ function Calendar() {
                 apiKey: API_KEY,
                 clientId: CLIENT_ID,
                 discoveryDocs: [DISCOVERY_DOC],
-                scope: SCOPES,
+                scope: SCOPES
             });
             console.log("Google API Client successfully initialized");
             gapiInited = true;
-            
-    
-            if (window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
-                console.log("User is already signed in.");
-            } else {
-                console.log("User is not signed in.");
-                maybeEnableButtons();
-            }
+            maybeEnableButtons();
         } catch (error) {
             console.error('Error initializing the Google API client:', error);
             gapiInited = false; 
@@ -80,9 +73,7 @@ function Calendar() {
                 if (response.error !== undefined) {
                     throw new Error(response.error);
                 }
-                setSignoutButtonVisible(true);
                 setAuthorizeButtonVisible(false);
-                setAddEventButtonVisible(true);
             },
         });
         gisInited = true;
@@ -92,81 +83,27 @@ function Calendar() {
     const maybeEnableButtons = () => {
         console.log("Enabling Buttons")
         if (gapiInited && gisInited) {
-            setAuthorizeButtonVisible(true);
+            if (!window.gapi.client.getToken()) 
+                setAuthorizeButtonVisible(true); 
+            else
+                setLinkVisible(true);
         }
     };
 
     const handleAuthClick = () => {
-        if (!window.gapi.client.getToken()) {
-            tokenClient.requestAccessToken({ prompt: 'consent' });
-        } else {
-            tokenClient.requestAccessToken({ prompt: '' });
-        }
+        tokenClient.requestAccessToken({prompt: 'consent'});
+        setLinkVisible(true);
     };
 
-    // const handleSignoutClick = () => {
-    //     window.google.accounts.oauth2.revoke(window.gapi.client.getToken().access_token, () => {
-    //         console.log('Token revoked and user signed out');
-    //         window.gapi.client.setToken(null); // Clear the client token
-    //         setSignoutButtonVisible(false);
-    //         setAuthorizeButtonVisible(true);
-    //         setAddEventButtonVisible(false);
-    //         // Optionally, navigate user somewhere else after sign-out
-    //         router.push('/');
-    //     });
-    // };
-
-    const addEvent = () => {
-        // const event = {
-        //     summary: 'Flight from Singapore to Langkawi',
-        //     start: {
-        //         dateTime: '2024-03-15T20:30:00+08:00',
-        //     },
-        //     end: {
-        //         dateTime: '2024-03-15T21:00:00+08:00',
-        //     },
-        // };
-
-        const request = window.gapi.client.calendar.events.insert({
-            calendarId: 'primary',
-            resource: event,
-        });
-
-        request.execute(function (event) {
-            alert('Event created: ' + event.htmlLink);
-            listUpcomingEvents(); // Refresh the events list
-        });
-    };
-
-    // Updated listUpcomingEvents function
-    const listUpcomingEvents = async () => {
-        try {
-            const response = await window.gapi.client.calendar.events.list({
-                calendarId: 'primary',
-                timeMin: new Date().toISOString(),
-                showDeleted: false,
-                singleEvents: true,
-                maxResults: 10,
-                orderBy: 'startTime',
-            });
-            setEvents(response.result.items);
-        } catch (err) {
-            console.error('Error listing events:', err.message);
-            setEvents([]); // Clear events on error
-        }
-    };
 
 
     return (
         <>
             {authorizeButtonVisible && (
-                <Button onClick={handleAuthClick} sx={{ display: 'block', margin: '0 auto' }}>Get Started!</Button>
+                <Button onClick={handleAuthClick} sx={{ display: 'block', margin: '0 auto' }}>Authorize</Button>
             )}
-            {/* {signoutButtonVisible && (
-                <Button onClick={handleSignoutClick} sx={{ display: 'block', margin: '0 auto' }}>Sign Out</Button>
-            )} */}
-            {addEventButtonVisible && (
-                <Button onClick={addEvent} sx={{ display: 'block', margin: '0 auto' }}>Add Event</Button>
+           {linkVisible && (
+                <Link href='/home'>Explore Changi Airport with ease!</Link>
             )}
         </>
     )

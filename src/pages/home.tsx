@@ -2,7 +2,6 @@ import React from 'react';
 import GlobalCss from '../components/GlobalCss';
 import NavBar from '../components/NavBar';
 import Dialog from '../components/Dialog';
-import Calendar from '../components/Calendar';
 import Map from '../components/Map';
 import Combined from "@/components/Combined";
 import { Paper, Box } from '@mui/material';
@@ -24,17 +23,11 @@ export default function Home() {
                 display: 'flex',
                 paddingTop: '10px'
             }}>
-                {/* <Combined></Combined> */}
+
                 <Dialog></Dialog>
-                <Box sx={{
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    margin: 'auto',
-                }}>
+                <Box sx={{ margin: 'auto'}}>
                     <Map></Map>
-                    <Calendar></Calendar>
                 </Box>
-                
             </Paper>
 
         </>

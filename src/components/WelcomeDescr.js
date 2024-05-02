@@ -1,7 +1,8 @@
 import React from 'react';
 import { Box, Typography, createTheme, ThemeProvider } from '@mui/material';
 import Banner from '../components/Banner';
-import Link from 'next/link'
+import Calendar from '../components/Calendar';
+
 
 const theme = createTheme({
     typography: {
@@ -27,7 +28,7 @@ function WelcomeDescr() {
                 It provides customized travel itineraries, real-time GPT-powered chat assistance, and efficient navigation using Google Maps integration.
             </Typography>
             <Box sx={{width: 'max-content', margin: 'auto'}}>
-                <Link href='/home'>Explore Changi Airport with ease!</Link>
+                <Calendar></Calendar>
             </Box>
         </Box>
     </ThemeProvider>

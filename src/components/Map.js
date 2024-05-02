@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScriptNext, Marker, InfoWindow } from '@react-google-maps/api';
 
 const MAP_KEY = process.env.NEXT_PUBLIC_MAP_KEY;
@@ -10,18 +10,37 @@ const mapContainerStyle = {
     marginBottom: '30px'
 };
 
-const center = {
-    lat: 1.3521,
-    lng: 103.8198
-};
+// const center = {
+//     lat: 1.3521,
+//     lng: 103.8198
+// };
 
 const options = {
     zoomControl: true,
 };
 
 function Map() {
-    const [markerPosition, setMarkerPosition] = useState(center);
+    const [currentLocation, setCurrentLocation] = useState(null);
+    const [markerPosition, setMarkerPosition] = useState(null);
     const [showInfoWindow, setShowInfoWindow] = useState(false);
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setCurrentLocation({ lat: latitude, lng: longitude });
+                    setMarkerPosition({ lat: latitude, lng: longitude });
+                },
+                (error) => {
+                    console.error(error);
+                }
+            );
+        } else {
+            console.error("Geolocation is not supported by this browser.");
+        }
+    }, []);
+
 
     function onMarkerDragEnd(event) {
         setMarkerPosition({
@@ -42,7 +61,7 @@ function Map() {
         <LoadScriptNext googleMapsApiKey={MAP_KEY}>
         <GoogleMap
             mapContainerStyle={mapContainerStyle}
-            center={center}
+            center={currentLocation}
             zoom={8}
             options={options}
         >
