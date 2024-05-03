@@ -156,7 +156,7 @@ function Dialog() {
     }
 
     async function fetchLocationDescription(lat, lng) {
-        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&location_type=ROOFTOP&key=${MAP_KEY}`;
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${MAP_KEY}`;
 
         try {
             const response = await fetch(url);
