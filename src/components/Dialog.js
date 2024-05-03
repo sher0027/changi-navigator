@@ -21,7 +21,6 @@ function Dialog() {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Step 2: Initialise a new thread for each user instance
     useEffect(() => {
-        setIsLoading(true);
         async function initThread() {
             try {
                 const thread = await openai.beta.threads.create();
@@ -35,15 +34,32 @@ function Dialog() {
         initThread();
     }, []);
 
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async function startRun(threadId) {
         // Step 3: Initialise a new run
-        const run = await openai.beta.threads.runs.create(threadId, {
+        let run = await openai.beta.threads.runs.create(threadId, {
             assistant_id: ASSISTANT_ID
         });
         await waitRunToComplete(threadId, run.id);
+        setIsLoading(true);
+
+        let userMessage = {name: 'You', text: 'Hello'};
+
+        await openai.beta.threads.messages.create(
+            threadId,
+            {role: "user", content: userMessage.text}
+        );
+
+        run = await openai.beta.threads.runs.create(threadId, {
+            assistant_id: ASSISTANT_ID
+        });
+        setLastRunId(run.id);
+        await waitRunToComplete(threadId, run.id);
+
+        // Get response from GPT
         const newMessage = await getNewMessage(threadId);
-        setMessages([...messages, {name: ASSISTANT_NAME, text: newMessage}]);
+        setMessages((currentMessages) => [...currentMessages, {name: ASSISTANT_NAME, text: newMessage}]);
         setIsLoading(false);
     }
 
@@ -98,7 +114,7 @@ function Dialog() {
         let userMessage = {name: 'You', text: input};
         setMessages((currentMessages) => [...currentMessages, userMessage]);
         setInput('');
-        
+
 
         await openai.beta.threads.messages.create(
             threadId,
@@ -132,7 +148,7 @@ function Dialog() {
     //         calendarId: 'primary',
     //         resource: event,
     //     });
-
+    //
     //     request.execute(function (event) {
     //         alert('Event created: ' + event.htmlLink);
     //     });
@@ -157,22 +173,22 @@ function Dialog() {
                     }}>
                     {messages.map((msg, index) => (
                         <Typography key={index} gutterBottom>
-                            {msg.name === 'You' ? 'You' : 'Assistant'}: 
+                            {msg.name === 'You' ? 'You' : 'Assistant'}:
                             <br />
                             {msg.text}
                         </Typography>
                     ))}
-                    <Loading open={isLoading} /> 
+                    <Loading open={isLoading} />
                     <Box sx={{
-                        position: 'absolute',        
-                        left: 0,   
-                        right: 0,         
-                        bottom: 0,           
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
                         bgcolor: '#F0F2F6',
                         padding: '10px',
                         borderBottomLeftRadius: '20px',
                         borderBottomRightRadius: '20px',
-                        zIndex: 1000       
+                        zIndex: 1000
                     }}>
                         <Box sx={{display: 'flex'}}>
                             <TextField
