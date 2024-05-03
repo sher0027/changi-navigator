@@ -3,6 +3,8 @@ import {Box, Typography, TextField, IconButton} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import { OpenAI } from 'openai';
 import Loading from './Loading';
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 
 const API_KEY = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
@@ -142,17 +144,17 @@ function Dialog() {
         }
     };
 
-    // const addEvent = (event) => {
-    //     console.log(event)
-    //     const request = window.gapi.client.calendar.events.insert({
-    //         calendarId: 'primary',
-    //         resource: event,
-    //     });
-    //
-    //     request.execute(function (event) {
-    //         alert('Event created: ' + event.htmlLink);
-    //     });
-    // };
+    const addEvent = (event) => {
+        console.log(event)
+        const request = window.gapi.client.calendar.events.insert({
+            calendarId: 'primary',
+            resource: event,
+        });
+
+        request.execute(function (event) {
+            alert('Event created: ' + event.htmlLink);
+        });
+    };
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     return (
@@ -172,13 +174,15 @@ function Dialog() {
                         scrollbarWidth: 'none'
                     }}>
                     {messages.map((msg, index) => (
-                        <Typography key={index} gutterBottom>
-                            {msg.name === 'You' ? 'You' : 'Assistant'}:
-                            <br />
-                            {msg.text}
-                        </Typography>
+                        <div key={index} style={{marginBottom: '20px'}}>
+                            <ReactMarkdown children={msg.name === 'You' ? 'You:' : 'Assistant:'}
+                                           remarkPlugins={[remarkGfm]}/>
+                            <ReactMarkdown children={msg.text} remarkPlugins={[remarkGfm]}/>
+                            <br/>
+                        </div>
+
                     ))}
-                    <Loading open={isLoading} />
+                    <Loading open={isLoading}/>
                     <Box sx={{
                         position: 'absolute',
                         left: 0,

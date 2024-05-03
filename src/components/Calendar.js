@@ -9,9 +9,9 @@ const SCOPES = process.env.NEXT_PUBLIC_SCOPES;
 
 function Calendar() {
     // Add useState hooks for controlling visibility of buttons
-    const [authorizeButtonVisible, setAuthorizeButtonVisible] = useState(false);
+    const [authorizeButtonVisible, setAuthorizeButtonVisible] = useState(true);
     const [linkVisible, setLinkVisible] = useState(false);
-    
+
     let tokenClient;
     let gapiInited = false;
     let gisInited = false;
@@ -61,7 +61,7 @@ function Calendar() {
             maybeEnableButtons();
         } catch (error) {
             console.error('Error initializing the Google API client:', error);
-            gapiInited = false; 
+            gapiInited = false;
         }
     };
 
@@ -73,7 +73,7 @@ function Calendar() {
                 if (response.error !== undefined) {
                     throw new Error(response.error);
                 }
-                setAuthorizeButtonVisible(false);
+                setAuthorizeButtonVisible(true);
             },
         });
         gisInited = true;
@@ -83,8 +83,8 @@ function Calendar() {
     const maybeEnableButtons = () => {
         console.log("Enabling Buttons")
         if (gapiInited && gisInited) {
-            if (!window.gapi.client.getToken()) 
-                setAuthorizeButtonVisible(true); 
+            if (!window.gapi.client.getToken())
+                setAuthorizeButtonVisible(true);
             else
                 setLinkVisible(true);
         }
