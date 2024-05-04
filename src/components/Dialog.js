@@ -20,6 +20,7 @@ function Dialog() {
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentLocation, setCurrentLocation] = useState(null);
+    const [data, setData] = useState([]);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Step 2: Initialise a new thread for each user instance
@@ -35,12 +36,38 @@ function Dialog() {
             }
         }
 
+        console.log(new Date())
         initThread();
-        getCurrentLocation()
+        getCurrentLocation();
+
+        // fetchData()
+        // sendData()
+
     }, []);
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    async function fetchData() {
+        const response = await fetch('./api/database');
+        const jsonData = await response.json();
+        setData(jsonData);
+        console.log(jsonData)
+    }
+
+    async function logChat(newLog) {
+
+        const response = await fetch('/api/database', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newLog)
+        });
+
+        const responseData = await response.json();
+        // alert(JSON.stringify(responseData));
+    }
+
     async function startRun(threadId) {
         // Step 3: Initialise a new run
         let run = await openai.beta.threads.runs.create(threadId, {
@@ -65,6 +92,8 @@ function Dialog() {
         // Get response from GPT
         const newMessage = await getNewMessage(threadId);
         setMessages((currentMessages) => [...currentMessages, {name: ASSISTANT_NAME, text: newMessage}]);
+        let newLog = {username: "default", session: "default", timestamp: new Date(), role: "Assistant", message: newMessage}
+        logChat(newLog)
         setIsLoading(false);
     }
 
@@ -74,7 +103,7 @@ function Dialog() {
         let new_run_status = run.status;
 
         //Polling
-        while (new_run_status === 'queued' || new_run_status === 'in_progress' ||new_run_status === "requires_action") {
+        while (new_run_status === 'queued' || new_run_status === 'in_progress' || new_run_status === "requires_action") {
             run = await openai.beta.threads.runs.retrieve(thread_id, run_id);
             new_run_status = run.status;
             if (new_run_status === "requires_action" && run.required_action.type === "submit_tool_outputs") {
@@ -96,14 +125,13 @@ function Dialog() {
                             ],
                         }
                     );
-                } else if (function_name === 'get_current_location'){
+                } else if (function_name === 'get_current_location') {
                     await getCurrentLocation()
                     let currentLocationDescription
                     console.log("current long lat: ", currentLocation)
                     if (currentLocation !== null) {
                         currentLocationDescription = await fetchLocationDescription(currentLocation.lat, currentLocation.lng)
-                    }
-                    else{
+                    } else {
                         currentLocationDescription = 'Location not available, request user to input manually!'
                     }
 
@@ -165,15 +193,29 @@ function Dialog() {
             }
             const data = await response.json();
             console.log("data", data);
-            if (data.status === 'OK'){
+            if (data.status === 'OK') {
                 return data.results[0].formatted_address
-            }
-            else{
+            } else {
                 return 'Location not available, request user to input manually!'
             }
         } catch (error) {
             console.error('Error fetching geocode data:', error);
         }
+    }
+
+
+    // Execute the SQL query with the provided data
+    async function insertData(newData) {
+        const sql = 'INSERT INTO logging SET ?';
+
+        connection.query(sql, newData, (err, result) => {
+            if (err) {
+                console.error('Error inserting data: ', err);
+                return;
+            }
+            console.log('Data inserted successfully');
+        });
+
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,6 +226,8 @@ function Dialog() {
 
         let userMessage = {name: 'You', text: input};
         setMessages((currentMessages) => [...currentMessages, userMessage]);
+        let newLog = {username: "default", session: "default", timestamp: new Date(), role: "User", message: input}
+        logChat(newLog)
         setInput('');
 
 
@@ -201,6 +245,8 @@ function Dialog() {
         // Get response from GPT
         const newMessage = await getNewMessage(threadId);
         setMessages((currentMessages) => [...currentMessages, {name: ASSISTANT_NAME, text: newMessage}]);
+        newLog = {username: "default", session: "default", timestamp: new Date(), role: "Assistant", message: newMessage}
+        logChat(newLog)
         setIsLoading(false);
     }
 
