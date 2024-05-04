@@ -3,11 +3,7 @@ import GlobalCss from '../components/GlobalCss';
 import NavBar from '../components/NavBar';
 import Dialog from '../components/Dialog';
 import Map from '../components/Map';
-import Combined from "@/components/Combined";
 import { Paper, Box } from '@mui/material';
-
-
-
 
 export default function Home() {
 

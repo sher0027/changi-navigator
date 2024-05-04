@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Box, Typography, TextField, IconButton} from '@mui/material';
+import {Box, Divider, TextField, IconButton} from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import {OpenAI} from 'openai';
 import Loading from './Loading';
@@ -243,12 +243,21 @@ function Dialog() {
                     scrollbarWidth: 'none'
                 }}>
                 {messages.map((msg, index) => (
-                    <div key={index} style={{marginBottom: '20px'}}>
+                    <Box key={index}>
                         <ReactMarkdown children={msg.name === 'You' ? 'You:' : 'Assistant:'}
-                                       remarkPlugins={[remarkGfm]}/>
-                        <ReactMarkdown children={msg.text} remarkPlugins={[remarkGfm]}/>
+                            remarkPlugins={[remarkGfm]} components={{
+                                p: ({ node, ...props }) => (
+                                    <p style={{ margin: '10px 0', fontWeight: 'bold' }} {...props} />
+                                ),
+                            }} />
+                        <ReactMarkdown children={msg.text} remarkPlugins={[remarkGfm]} components={{
+                                p: ({ node, ...props }) => (
+                                    <p style={{ margin: '10px 0' }} {...props} />
+                                ),
+                            }} />
                         <br/>
-                    </div>
+                        {index !== messages.length - 1 && <Divider />}
+                    </Box>
 
                 ))}
                 <Loading open={isLoading}/>
