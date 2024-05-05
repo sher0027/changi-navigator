@@ -39,7 +39,7 @@ export default function Login() {
         console.log(responseData);
     
         if (response.ok) {
-            alert(responseData.message || 'Login successful');
+            // alert(responseData.message || 'Login successful');
             router.push('/app');
         } else {
             alert(responseData.error || 'Login failed');
