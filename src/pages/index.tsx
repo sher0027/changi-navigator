@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import GlobalCss from '../components/GlobalCss';
 import { Paper, Box, Typography, Button, TextField, IconButton } from '@mui/material';
 import { AccountCircle, Visibility, VisibilityOff } from '@mui/icons-material';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
 export default function Login() {
     const [showPassword, setShowPassword] = React.useState(false);
@@ -14,7 +16,8 @@ export default function Login() {
         username: '',
         password: ''
     });
-    // const router = useRouter();
+    
+    const router = useRouter();
 
     const handleChangeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUserInfo({ ...userInfo, username: event.target.value });
@@ -26,29 +29,7 @@ export default function Login() {
     const [error, setError] = useState('');
     const handleSubmitUserInfo = async (event: React.SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        // try {
-        //     const response = await axios.post(
-        //         'http://localhost:3001/login',
-        //         {
-        //             'username': userInfo.username,
-        //             'password': userInfo.password
-        //         }
-        //     );
-
-        //     // 打印响应内容
-        //     console.log(response);
-        //     if (response.status === 200)
-        //         // 如果登录成功，重定向到首页
-        //         router.push('/profile');
-
-        // } catch (error) {
-        //     // 处理请求过程中的错误
-        //     console.error("An error occurred during the login process:", error);
-        //     setError(error.response.data);
-        // }
-
-
+        router.push('/app');
     };
 
   return (
