@@ -6,15 +6,15 @@ const CLIENT_ID =  process.env.NEXT_PUBLIC_CLIENT_ID;
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 const DISCOVERY_DOC = process.env.NEXT_PUBLIC_DISCOVERY_DOC;
 const SCOPES = process.env.NEXT_PUBLIC_SCOPES;
+const PLUGIN_NAME = process.env.NEXT_PUBLIC_ASSISTANT_NAME;
 
 function Calendar() {
     // Add useState hooks for controlling visibility of buttons
     const [authorizeButtonVisible, setAuthorizeButtonVisible] = useState(false);
     const [linkVisible, setLinkVisible] = useState(false);
-
-    let tokenClient;
-    let gapiInited = false;
-    let gisInited = false;
+    const [tokenClient, setTokenClient] = useState(null);
+    const [gisInited, setGisInited] = useState(false);
+    const [gapiInited, setGapiInited] = useState(false);
 
     useEffect(() => {
         // Load the Google API and Google Identity Services client libraries
@@ -32,10 +32,16 @@ function Calendar() {
             document.body.appendChild(gsiScript);
         });
 
-        Promise.all([loadGapi, loadGis]).then(() => {
-            window.gapi.load('client', initializeGapiClient);
-            gisLoaded();
-        });
+        // First, ensure GAPI is loaded
+        loadGapi.then(() => {
+            window.gapi.load('client', () => {
+                initializeGapiClient().then(() => {
+                    loadGis.then(() => {
+                        gisLoaded();
+                    }).catch(err => console.error("GIS script failed to load:", err));
+                });
+            });
+        }).catch(err => console.error("GAPI script failed to load:", err));
 
         return () => {
             // Cleanup script elements if component unmounts
@@ -54,45 +60,56 @@ function Calendar() {
                 apiKey: API_KEY,
                 clientId: CLIENT_ID,
                 discoveryDocs: [DISCOVERY_DOC],
-                scope: SCOPES
+                scope: SCOPES,
+                plugin_name: PLUGIN_NAME,
             });
             console.log("Google API Client successfully initialized");
-            gapiInited = true;
-            maybeEnableButtons();
+            setGapiInited(true);
+            // maybeEnableButtons();
         } catch (error) {
             console.error('Error initializing the Google API client:', error);
-            gapiInited = false; 
+            setGapiInited(false);
         }
     };
 
     const gisLoaded = () => {
-        tokenClient = window.google.accounts.oauth2.initTokenClient({
-            client_id: CLIENT_ID,
-            scope: SCOPES,
-            callback: (response) => {
-                if (response.error !== undefined) {
-                    throw new Error(response.error);
-                }
-                setAuthorizeButtonVisible(false);
-            },
-        });
-        gisInited = true;
-        maybeEnableButtons();
-    };
-
-    const maybeEnableButtons = () => {
-        console.log("Enabling Buttons")
-        if (gapiInited && gisInited) {
-            if (!window.gapi.client.getToken()) 
-                setAuthorizeButtonVisible(true); 
-            else
-                setLinkVisible(true);
+        if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+            console.log("Loading Gis");
+            const client = window.google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: (response) => {
+                    console.log("OAuth response:", response);
+                    if (response.error) {
+                        console.error("OAuth error:", response.error);
+                        setGisInited(false);
+                    }
+                },
+            });
+            setGisInited(true);
+            console.log("Token client is initialized and authenticated successfully.");
+            setTokenClient(client);
+            maybeEnableButtons();
+        } else {
+            console.error("Google Identity Services not fully loaded.");
+            setGisInited(false);
         }
     };
 
+    const maybeEnableButtons = () => {
+        console.log("Enabling Buttons");
+        if (!window.gapi.client.getToken()) 
+            setAuthorizeButtonVisible(true); 
+        else
+            setLinkVisible(true);
+    };
+
     const handleAuthClick = () => {
-        tokenClient.requestAccessToken({prompt: 'consent'});
-        setLinkVisible(true);
+        if(tokenClient){
+            tokenClient.requestAccessToken({ prompt: 'consent' });
+            setAuthorizeButtonVisible(false); 
+            setLinkVisible(true);
+        }
     };
 
     return (
