@@ -64,7 +64,7 @@ const Weather = ({ lat, lng }) => {
             width: '100%',
             margin: '20px auto',
             padding: '10px',
-            width: '400px',
+            // width: '400px',
             boxSizing: 'border-box'
         }}>
             <Box sx={{flex: 1}}>
