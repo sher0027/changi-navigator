@@ -3,7 +3,6 @@ import GlobalCss from '../components/GlobalCss';
 import { Paper, Box, Typography, Button, TextField, IconButton } from '@mui/material';
 import { AccountCircle, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 
 export default function Login() {
     const [showPassword, setShowPassword] = React.useState(false);
@@ -26,10 +25,25 @@ export default function Login() {
         setUserInfo({ ...userInfo, password: event.target.value });
     };
 
-    const [error, setError] = useState('');
     const handleSubmitUserInfo = async (event: React.SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        router.push('/app');
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userInfo)
+        });
+    
+        const responseData = await response.json();
+        console.log(responseData);
+    
+        if (response.ok) {
+            alert(responseData.message || 'Login successful');
+            router.push('/app');
+        } else {
+            alert(responseData.error || 'Login failed');
+        }
     };
 
   return (
@@ -146,7 +160,7 @@ export default function Login() {
                                     onMouseDown={handleMouseDownPassword}
                                     sx={{ padding: 0 }}
                                 >
-                                    {showPassword ? <VisibilityOff style={{ color: 'white' }}/> : <Visibility style={{ color: 'white' }}/>} 
+                                    {showPassword ? <Visibility style={{ color: 'white' }}/> : <VisibilityOff style={{ color: 'white' }}/>} 
                                 </IconButton>
                             }}
                             InputLabelProps={{ style: { color: 'white' } }}

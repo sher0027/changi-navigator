@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {Box, Paper, Divider, Typography } from "@mui/material";
+import {Box, Divider, Typography } from "@mui/material";
 
 const Weather = ({ lat, lng }) => {
     const [weatherData, setWeatherData] = useState(null);

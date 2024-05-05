@@ -11,8 +11,7 @@ function Image({ setImg }) {
         const fetchAddress = async () => {
             if (!location) return;  
 
-            const latlng = `${location.lat},${location.lng}`;
-            const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng}&key=${MAP_KEY}`;
+            const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${location.lat},${location.lng}&key=${MAP_KEY}`;
 
             try {
                 const response = await fetch(geocodeUrl);

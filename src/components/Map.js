@@ -26,7 +26,6 @@ function Map({ onLocationChange }) {
     const [isMarkerSet, setIsMarkerSet] = useState(false); 
     const [showInfoWindow, setShowInfoWindow] = useState(false);
 
-
     useEffect(() => {
         if (currentLocation && !isMarkerSet) { 
             setMarkerPosition(currentLocation);

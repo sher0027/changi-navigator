@@ -55,7 +55,6 @@ function Dialog() {
     }
 
     async function logChat(newLog) {
-
         const response = await fetch('/api/database', {
             method: 'POST',
             headers: {
