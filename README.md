@@ -27,15 +27,15 @@ Travelers may be uncertain about their transportation options and the time requi
 
 ### Solution Architecture:
 1) Login Page:
-![Login.png](..%2F..%2F..%2FLogin.png)
+![Login.png](pic/Login.png)
 Authenticate user identity through MySql DB.
 
 2) Welcome Page:
-![Home.png](..%2F..%2F..%2FHome.png)
+![Home.png](pic/Home.png)
 Handle user authorize access rights and some attractive features to appeal user. API engaged: Google Map, Unsplash, Google Calendar.
 
 3) App Page:
-![Chatbot.png](..%2F..%2F..%2FChatbot.png)
+![Chatbot.png](pic/Chatbot.png)
 Main application for chat, integrated with weather condition and event creation to improve user experience. API engaged: Google Map, Unsplash, Google Calendar, OpenAI, openweathermap.
 
 ### Legal/Other Aspects: 
